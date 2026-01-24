@@ -1,6 +1,8 @@
 [submodule "3rd_party/nanoprintf"]
 	path = 3rd_party/nanoprintf
 	url = git@github.com:charlesnicholson/nanoprintf.git
+	branch = main
 [submodule "3rd_party/littlefs"]
 	path = 3rd_party/littlefs
 	url = git@github.com:littlefs-project/littlefs.git
+	branch = master
