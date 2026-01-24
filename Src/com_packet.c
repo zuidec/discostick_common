@@ -181,11 +181,11 @@ void com_packet_create_cmd(com_packet_t* packet, com_addr_t addr, cmd_type_t com
     packet->packet_type         = COM_PACKET_CMD;
     //packet->packet_size.value   = COM_PACKET_HEADER_SIZE + packet->payload_length;
     //packet->crc32.value         = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
+    packet->payload[0]          = (uint8_t)command;
     uint32_t temp = COM_PACKET_HEADER_SIZE + packet->payload_length;
     memcpy(&packet->packet_size,&temp,sizeof(uint32_t));
     temp = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
     memcpy(&packet->crc32,&temp,sizeof(uint32_t));
-    packet->payload[0]          = (uint8_t)command;
 }
 
 cmd_type_t com_packet_get_cmd(com_packet_t* packet) {
