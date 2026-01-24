@@ -56,8 +56,8 @@ static void cp_buf_to_packet(com_packet_t* packet, uint8_t* data)   {
      packet->packet_type 		= data[CP_PTYPE_OFFSET];
      packet->payload_length 	= data[CP_PLEN_OFFSET];
      packet->padding 			= data[CP_PAD_OFFSET];
-     memcpy(packet->packet_size,&data[CP_PSIZE_OFFSET],sizeof(uint32_t));
-     memcpy(packet->crc32,&data[CP_CRC32_OFFSET],sizeof(uint32_t));
+     memcpy(&packet->packet_size,&data[CP_PSIZE_OFFSET],sizeof(uint32_t));
+     memcpy(&packet->crc32,&data[CP_CRC32_OFFSET],sizeof(uint32_t));
      //packet->packet_size.value	= u8_to_u32(&data[CP_PSIZE_OFFSET]);
      //packet->crc32.value		= u8_to_u32(&data[CP_CRC32_OFFSET]);
      if(packet->payload_length > COM_PACKET_PAYLOAD_SIZE)	{
@@ -104,8 +104,8 @@ void com_packet_clear(com_packet_t* packet)	{
 	packet->packet_type = (uint8_t)COM_PACKET_NORMAL;
 	packet->payload_length = 0;
 	packet->padding = 0;
-    memset(packet->packet_size,0,sizeof(uint32_t));
-    memset(packet->crc32,0,sizeof(uint32_t));
+    memset(&packet->packet_size,0,sizeof(uint32_t));
+    memset(&packet->crc32,0,sizeof(uint32_t));
 	//packet->packet_size.value = 0;
 	//packet->crc32.value = 0;
 	memset(packet->payload, 0, COM_PACKET_PAYLOAD_SIZE);
@@ -138,9 +138,9 @@ void com_packet_create(com_packet_t* packet, com_addr_t addr, uint8_t* data, uin
     packet->dest_addr           = addr;
 	packet->packet_type         = COM_PACKET_NORMAL;
     uint32_t temp = COM_PACKET_HEADER_SIZE + packet->payload_length;
-    memcpy(packet->packet_size,&temp,sizeof(uint32_t));
+    memcpy(&packet->packet_size,&temp,sizeof(uint32_t));
     temp = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
-    memcpy(packet->crc32,&temp,sizeof(uint32_t));
+    memcpy(&packet->crc32,&temp,sizeof(uint32_t));
 }
 
 void com_packet_create_cmd(com_packet_t* packet, com_addr_t addr, cmd_type_t command, uint8_t* para_data, uint32_t para_size)    {
@@ -182,9 +182,9 @@ void com_packet_create_cmd(com_packet_t* packet, com_addr_t addr, cmd_type_t com
     //packet->packet_size.value   = COM_PACKET_HEADER_SIZE + packet->payload_length;
     //packet->crc32.value         = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
     uint32_t temp = COM_PACKET_HEADER_SIZE + packet->payload_length;
-    memcpy(packet->packet_size,&temp,sizeof(uint32_t));
+    memcpy(&packet->packet_size,&temp,sizeof(uint32_t));
     temp = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
-    memcpy(packet->crc32,&temp,sizeof(uint32_t));
+    memcpy(&packet->crc32,&temp,sizeof(uint32_t));
     packet->payload[0]          = (uint8_t)command;
 }
 
@@ -213,11 +213,11 @@ void com_packet_create_special(com_packet_t* packet, com_addr_t addr, packet_typ
         switch(packet_type) {
             case COM_PACKET_ACK:
                 temp = ACK_CRC32;
-                memcpy(packet->crc32,&temp,sizeof(uint32_t));
+                memcpy(&packet->crc32,&temp,sizeof(uint32_t));
                 break;
             case COM_PACKET_NACK:
                 temp = NACK_CRC32;
-                memcpy(packet->crc32,&temp,sizeof(uint32_t));
+                memcpy(&packet->crc32,&temp,sizeof(uint32_t));
                 break;
             default:
                 break;
@@ -229,7 +229,7 @@ void com_packet_create_special(com_packet_t* packet, com_addr_t addr, packet_typ
         packet->payload_length      = 0;
         packet->padding             = 0;
         uint32_t size               = COM_PACKET_HEADER_SIZE;;
-        memcpy(packet->packet_size,&size,sizeof(uint32_t));
+        memcpy(&packet->packet_size,&size,sizeof(uint32_t));
     }
     else if(packet_type == COM_PACKET_NORMAL)   {
         com_packet_create(packet, addr, para_data, para_size);
@@ -256,9 +256,9 @@ void com_packet_create_special(com_packet_t* packet, com_addr_t addr, packet_typ
         //packet->packet_size.value   = COM_PACKET_HEADER_SIZE + packet->payload_length;
         //packet->crc32.value         = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
         uint32_t temp = COM_PACKET_HEADER_SIZE + packet->payload_length;
-        memcpy(packet->packet_size,&temp,sizeof(uint32_t));
+        memcpy(&packet->packet_size,&temp,sizeof(uint32_t));
         temp = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
-        memcpy(packet->crc32,&temp,sizeof(uint32_t));
+        memcpy(&packet->crc32,&temp,sizeof(uint32_t));
     }
 }
 
