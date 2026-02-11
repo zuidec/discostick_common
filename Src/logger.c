@@ -11,7 +11,7 @@
 #include <string.h>
 #include "logger.h"
 #include "main.h"
-#define NANOPRINTF_IMPLEMENTATION
+//#define NANOPRINTF_IMPLEMENTATION
 #include "nanoprintf.h"
 
 #define LOG_DEBUG 1

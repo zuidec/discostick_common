@@ -5,10 +5,11 @@
  *      Author: zuidec
  */
 
-#include "uart.h"
-#include "bitutils.h"
 #include <string.h>
 #include <stdint.h>
+#include "uart.h"
+#include "hal_shim.h"
+#include "bitutils.h"
 
 static uart_handle_t *uart_instances[MAX_UART_COUNT];
 static uint8_t uart_instance_id = 0;
@@ -39,7 +40,8 @@ uart_status_t uart_init(uart_handle_t *uart, UART_HandleTypeDef *h_uart) {
 	memset((void*)uart->dma_buffer, 0, DMA_BUF_SIZE);
 	uart->dma_index = 0;
 	uart->rxlock = false;
-	HAL_UARTEx_ReceiveToIdle_DMA(h_uart, (uint8_t*)uart->dma_buffer, DMA_BUF_SIZE);
+    HAL_UART_Abort(h_uart);
+	HAL_StatusTypeDef ret = HAL_UARTEx_ReceiveToIdle_DMA(h_uart, (uint8_t*)uart->dma_buffer, DMA_BUF_SIZE);
 	uart->status = UART_OK;
 
 	return uart->status;
@@ -49,7 +51,7 @@ void uart_deinit(uart_handle_t* uart)   {
 
     uart_unregister_instance(uart);
     HAL_UART_Abort(uart->huart);
-    //HAL_UART_AbortTransmit(uart->huart);
+
     uart->huart = NULL;
 }
 
@@ -257,7 +259,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 
 	switch (huart->RxEventType) {
 	case HAL_UART_RXEVENT_HT: {
-		// Do nothing
 		break;
 	}
 	case HAL_UART_RXEVENT_TC: {

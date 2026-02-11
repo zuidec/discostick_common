@@ -12,7 +12,7 @@
  *	Includes
  */
 #include "lfs.h"
-#include "w25q16jv.h"
+#include "w25qxx.h"
 
 
 /*
@@ -47,7 +47,9 @@ enum fs_error {
     FS_ERR_READ_FAIL = -10,
     FS_ERR_WRITE_FAIL = -11,
     FS_ERR_CLOSE_FAIL = -13,
-    FS_ERR_NOAXIS = -15
+    FS_ERR_NO_AXIS = -15,
+    FS_ERR_NO_INIT = -16
+
 };
 
 /*
@@ -60,15 +62,13 @@ enum fs_error {
  */
 
 
-void format_flashfs(w25q16_handle_t* flash_dev);
-int32_t init_flashfs(w25q16_handle_t* flash_dev);
+void format_flashfs(bus_t* flash_dev);
+int32_t init_flashfs(bus_t* flash_dev);
 
+int32_t read_file(const char* filename, uint8_t* data, uint32_t size);
+int32_t save_file(const char* filename, const uint8_t* data, uint32_t size);
 int32_t load_calibration(uint8_t axis, uint8_t* data, uint32_t size);
 int32_t save_calibration(uint8_t axis, uint8_t* data, uint32_t size);
 
-int read_flash_region(const struct lfs_config* cfg, uint32_t block, uint32_t off, void* buffer, uint32_t size);
-int prog_flash_region(const struct lfs_config* cfg, uint32_t block, uint32_t off, const void* buffer, uint32_t size);
-int erase_flash_region(const struct lfs_config* cfg, uint32_t block);
-int sync_flash(const struct lfs_config* cfg);
 
 #endif	// END LFS_CONF_H

@@ -13,13 +13,13 @@ extern "C" {
 #endif
 
 
-#include "main.h"
-#include "stdint.h"
+#include <stdint.h>
+#include "hal_shim.h"
 #include "fifo.h"
 #include "com_packet.h"
 
 #ifndef UART_BUFFER_SIZE
-#define UART_BUFFER_SIZE	(128)
+#define UART_BUFFER_SIZE	(1024)
 #endif
 
 #define DMA_BUF_SIZE		(UART_BUFFER_SIZE)
@@ -43,17 +43,23 @@ typedef struct	{
 	bool tx_waiting;
 	uint32_t tx_remaining;
 	uint32_t tx_size;
-	volatile uint8_t rx_buffer[UART_BUFFER_SIZE];
-	uint8_t tx_buffer[UART_BUFFER_SIZE];
+	volatile uint8_t rx_buffer[UART_BUFFER_SIZE]__attribute__((aligned(4)));
+	uint8_t tx_buffer[UART_BUFFER_SIZE]__attribute__((aligned(4)));
 	fifo_buffer_t rx_fifo;
 	fifo_buffer_t tx_fifo;
     bool rxlock;
-    volatile uint8_t dma_buffer[DMA_BUF_SIZE];
+    volatile uint8_t dma_buffer[DMA_BUF_SIZE]__attribute__((aligned(4)));
 	volatile uint32_t dma_index;
 	volatile uint32_t last_dma_size;
 	uint32_t unread_bytes;
 
 }uart_handle_t;
+
+typedef struct uart_port_t  {
+    uart_handle_t* uart;
+    com_packet_t* cpacket;
+    com_packet_t* lpacket;
+} uart_port_t;
 
 uart_status_t uart_init(uart_handle_t* uart, UART_HandleTypeDef* h_uart);
 void uart_deinit(uart_handle_t* uart);

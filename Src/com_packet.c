@@ -149,38 +149,53 @@ void com_packet_create_cmd(com_packet_t* packet, com_addr_t addr, cmd_type_t com
         return;
     }
     com_packet_clear(packet);
-    if(command == CMD_SET_CAL)  {
-        if((uint32_t)para_data==(uint32_t)NULL) {
-            cp_assert();
-            return;
-        }
-        if(para_size >= COM_PACKET_PAYLOAD_SIZE)    {
-            memcpy(&packet->payload[1], para_data, COM_PACKET_PAYLOAD_SIZE-1);
-            packet->payload_length = COM_PACKET_PAYLOAD_SIZE;
-            packet->padding = 0;
-        }
-        else    {
-            // Offset by one to account for the actual command at [0] index
-            memcpy(&packet->payload[1], para_data, para_size);
-           // packet->padding = para_size + (sizeof(uint32_t) - (para_size%sizeof(uint32_t)));
-            packet->padding = (sizeof(uint32_t) - ((para_size+1)%sizeof(uint32_t)));
-            packet->payload_length = para_size + 1 + packet->padding;        
+    switch(command) {
+        case CMD_SET_CAL:
+        case CMD_SET_ALPHA:
+            if((uint32_t)para_data==(uint32_t)NULL) {
+                cp_assert();
+            }
+            else if(para_size >= COM_PACKET_PAYLOAD_SIZE)    {
+                memcpy(&packet->payload[1], para_data, COM_PACKET_PAYLOAD_SIZE-1);
+                packet->payload_length = COM_PACKET_PAYLOAD_SIZE;
+                packet->padding = 0;
+            }
+            else    {
+                // Offset by one to account for the actual command at [0] index
+                memcpy(&packet->payload[1], para_data, para_size);
+                packet->padding = (sizeof(uint32_t) - ((para_size+1)%sizeof(uint32_t)));
+                packet->payload_length = para_size + 1 + packet->padding;        
 
-        }
+            }
+            break;
+        case CMD_GET_CAL:
+        case CMD_GET_POS:
+        case CMD_GET_ALPHA:
+        case CMD_STEP_ON:
+        case CMD_STEP_OFF:
+            if((uint32_t)para_data==(uint32_t)NULL) {
+                cp_assert();
+            }
+            else    {
+                // Offset by one to account for the actual command at [0] index
+                memcpy(&packet->payload[1], para_data, para_size);
+                packet->padding = (sizeof(uint32_t) - ((para_size+1)%sizeof(uint32_t)));
+                packet->payload_length = para_size + 1 + packet->padding;        
+            }
+            break;
+        default:
+            (void)para_data;
+            (void)para_size;
+            packet->payload_length  = sizeof(uint32_t);
+            packet->padding         = sizeof(uint32_t)-sizeof(uint8_t);
+            break;
 
     }
-    else    {
-        (void)para_data;
-        (void)para_size;
-        packet->payload_length  = sizeof(uint32_t);
-        packet->padding         = sizeof(uint32_t)-sizeof(uint8_t);
-    }
+
 
     packet->src_addr            = source_address;
     packet->dest_addr           = addr;
     packet->packet_type         = COM_PACKET_CMD;
-    //packet->packet_size.value   = COM_PACKET_HEADER_SIZE + packet->payload_length;
-    //packet->crc32.value         = crc32_calc((uint32_t*)packet->payload, packet->payload_length/sizeof(uint32_t));
     packet->payload[0]          = (uint8_t)command;
     uint32_t temp = COM_PACKET_HEADER_SIZE + packet->payload_length;
     memcpy(&packet->packet_size,&temp,sizeof(uint32_t));
