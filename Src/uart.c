@@ -186,7 +186,7 @@ void uart_write_packet(uart_handle_t *uart, com_packet_t *packet) {
 	uint32_t ret = 0;
 	if (true != (uart->tx_busy)) {
 		if (u8_to_u32(packet->packet_size) >= UART_BUFFER_SIZE) {
-			ret = fifo_write(&uart->tx_fifo, (uint8_t*) &packet,
+			ret = fifo_write(&uart->tx_fifo, (uint8_t*) packet,
 			        UART_BUFFER_SIZE);
 			uint32_t bytes_to_end = UART_BUFFER_SIZE - uart->tx_fifo.read_index;
 			if (ret > bytes_to_end) {
@@ -215,10 +215,10 @@ void uart_write_packet(uart_handle_t *uart, com_packet_t *packet) {
 	} else {
 		// (TODO) handle this, could get goofy if dma is running and changing things in interrupt
 		if (u8_to_u32(packet->packet_size)> UART_BUFFER_SIZE) {
-			ret = fifo_write(&uart->tx_fifo, (uint8_t*) &packet,
+			ret = fifo_write(&uart->tx_fifo, (uint8_t*) packet,
 			        UART_BUFFER_SIZE);
 		} else {
-			ret = fifo_write(&uart->tx_fifo, (uint8_t*) &packet,
+			ret = fifo_write(&uart->tx_fifo, (uint8_t*) packet,
 			        u8_to_u32(packet->packet_size));
 		}
 		uart->tx_remaining += ret;

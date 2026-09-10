@@ -294,7 +294,12 @@ packet_type_t com_packet_parse(com_packet_t* packet, uint8_t* data, uint32_t siz
             retval = COM_PACKET_TIMEOUT;
         }
 		if(data[index+CP_VER_OFFSET] == COM_PACKET_VERSION)	{
-			 if((index + u8_to_u32(&data[index+CP_PSIZE_OFFSET])) <= size){
+            uint32_t test_size = u8_to_u32(&data[index+CP_PSIZE_OFFSET]);
+            uint32_t test_plen = data[index+CP_PLEN_OFFSET];
+            if(test_plen <= COM_PACKET_PAYLOAD_SIZE && 
+               test_size == (uint32_t) COM_PACKET_HEADER_SIZE + test_plen &&
+               (index + test_size) <= size) {
+			 //if((index + u8_to_u32(&data[index+CP_PSIZE_OFFSET])) <= size){
 				 packet_type_t type = data[index+CP_PTYPE_OFFSET];
 				 uint32_t test_crc = u8_to_u32(&data[index+CP_CRC32_OFFSET]);
 				 uint32_t calc_crc = 0;
